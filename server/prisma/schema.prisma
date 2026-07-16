@@ -1,0 +1,61 @@
+// Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Asset {
+  id                     Int      @id @default(autoincrement())
+  name                   String
+  startingThickness      Decimal
+  simulatedCorrosionRate Decimal
+  minSafeThickness       Decimal
+  createdAt              DateTime @default(now())
+
+  readings        Reading[]
+  recommendations Recommendation[]
+}
+
+model Reading {
+  id          Int      @id @default(autoincrement())
+  assetId     Int
+  asset       Asset    @relation(fields: [assetId], references: [id])
+  thickness   Decimal
+  pressure    Decimal
+  temperature Decimal
+  recordedAt  DateTime
+
+  @@index([assetId, recordedAt])
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum CauseCategory {
+  INTERNAL_CORROSION
+  EXTERNAL_CORROSION
+  MECHANICAL_DAMAGE
+  MATERIAL_FAILURE
+  OTHER
+}
+
+model Recommendation {
+  id                Int           @id @default(autoincrement())
+  assetId           Int
+  asset             Asset         @relation(fields: [assetId], references: [id])
+  severity          Severity
+  cause             CauseCategory
+  recommendedAction String
+  confidence        Decimal
+  createdAt         DateTime      @default(now())
+}
