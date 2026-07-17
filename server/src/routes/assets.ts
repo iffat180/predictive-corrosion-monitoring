@@ -47,7 +47,12 @@ assetsRouter.get("/:id", async (req, res) => {
   }
 
   const metrics = computeAssetMetrics(asset.readings, Number(asset.minSafeThickness));
-  res.json({ id: asset.id, name: asset.name, ...metrics });
+  res.json({
+    id: asset.id,
+    name: asset.name,
+    minSafeThickness: Number(asset.minSafeThickness),
+    ...metrics,
+  });
 });
 
 // GET /assets/:id/readings
