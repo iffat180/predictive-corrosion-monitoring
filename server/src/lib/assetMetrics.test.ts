@@ -13,7 +13,7 @@ describe("computeAssetMetrics", () => {
     });
   });
 
-  it("returns nulls and LOW risk for exactly 1 reading (can't compute a trend from one point)", () => {
+  it("returns the known thickness but no trend for exactly 1 reading", () => {
     const result = computeAssetMetrics(
       [{ thickness: 9.9, recordedAt: new Date("2024-01-01") }],
       5,
@@ -23,7 +23,7 @@ describe("computeAssetMetrics", () => {
       corrosionRate: null,
       daysRemaining: null,
       riskLevel: "LOW",
-      latestThickness: null,
+      latestThickness: 9.9,
     });
   });
 

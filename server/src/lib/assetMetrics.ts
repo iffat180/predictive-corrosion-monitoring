@@ -21,8 +21,13 @@ export function computeAssetMetrics(
   readings: ReadingLike[],
   minSafeThickness: number,
 ): AssetMetrics {
-  if (readings.length < 2) {
+  if (readings.length === 0) {
     return { corrosionRate: null, daysRemaining: null, riskLevel: "LOW", latestThickness: null };
+  }
+
+  if (readings.length < 2) {
+    const latestThickness = Number(readings[readings.length - 1].thickness);
+    return { corrosionRate: null, daysRemaining: null, riskLevel: "LOW", latestThickness };
   }
 
   const firstDate = readings[0].recordedAt.getTime();
