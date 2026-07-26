@@ -1,33 +1,33 @@
 import { NavLink, Outlet } from "react-router-dom";
 
-function navClass({ isActive }: { isActive: boolean }) {
-  return `py-2.5 text-[13px] tracking-wide border-b-2 ${
-    isActive ? "text-text-h border-accent" : "text-text-dim border-transparent"
+function navLinkClass({ isActive }: { isActive: boolean }) {
+  return `block px-3 py-2 text-sm border-l-2 ${
+    isActive
+      ? "text-text-h border-accent bg-panel-raised"
+      : "text-text-dim border-transparent hover:text-text hover:bg-panel-raised"
   }`;
 }
 
 export function Layout() {
   return (
-    <div>
-      <header className="border-b border-border-strong bg-panel px-6">
-        <div className="max-w-[1100px] mx-auto flex items-center gap-8">
-          <div className="py-4">
-            <div className="font-bold text-text-h text-[15px]">FLEET INTEGRITY MONITOR</div>
-            <div className="uppercase tracking-wider text-[11px] text-text-dim font-semibold">
-              corrosion &amp; remaining-life tracking
-            </div>
+    <div className="flex min-h-screen">
+      <aside className="w-56 shrink-0 border-r border-border-strong bg-panel flex flex-col">
+        <div className="px-4 py-5 border-b border-border">
+          <div className="font-bold text-text-h text-sm tracking-wide">FLEET INTEGRITY</div>
+          <div className="uppercase tracking-wider text-[10px] text-text-dim font-semibold mt-0.5">
+            Monitoring System
           </div>
-          <nav className="flex gap-5">
-            <NavLink to="/" className={navClass} end>
-              Fleet
-            </NavLink>
-            <NavLink to="/priority" className={navClass}>
-              Priority Queue
-            </NavLink>
-          </nav>
         </div>
-      </header>
-      <main className="max-w-[1100px] mx-auto p-6">
+        <nav className="flex-1 py-3">
+          <NavLink to="/" className={navLinkClass} end>
+            Fleet Overview
+          </NavLink>
+          <NavLink to="/priority" className={navLinkClass}>
+            Priority Queue
+          </NavLink>
+        </nav>
+      </aside>
+      <main className="flex-1 p-8 overflow-x-auto">
         <Outlet />
       </main>
     </div>
