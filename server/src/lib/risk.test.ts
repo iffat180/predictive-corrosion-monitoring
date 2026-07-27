@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { calculateRiskLevel } from "./risk";
+import { calculateRiskLevel } from "./risk.js";
 
 describe("calculateRiskLevel", () => {
   it("returns LOW when daysRemaining is null (not corroding)", () => {

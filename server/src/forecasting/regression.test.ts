@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { calculateSlope, calculateCorrosionRate, daysUntilUnsafe, type Point } from "./regression";
+import { calculateSlope, calculateCorrosionRate, daysUntilUnsafe, type Point } from "./regression.js";
 
 describe("calculateSlope", () => {
   it("returns the exact slope for a perfectly linear declining trend", () => {

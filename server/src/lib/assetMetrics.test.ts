@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeAssetMetrics } from "./assetMetrics";
+import { computeAssetMetrics } from "./assetMetrics.js";
 
 describe("computeAssetMetrics", () => {
   it("returns nulls and LOW risk for 0 readings", () => {
