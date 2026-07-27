@@ -81,3 +81,23 @@ describe("GET /assets/:id/recommendations", () => {
     expect(Array.isArray(res.body)).toBe(true);
   });
 });
+
+describe("POST /assets/:id/recommendations", () => {
+  it("returns 404 for an id that doesn't exist", async () => {
+    const res = await request(app).post("/assets/999999999/recommendations");
+
+    expect(res.status).toBe(404);
+    expect(res.body).toHaveProperty("error");
+  });
+
+  it("returns 400 for an asset that isn't HIGH or CRITICAL risk", async () => {
+    const list = await request(app).get("/assets?riskLevel=LOW");
+    if (list.body.length === 0) return;
+
+    const lowRiskId = list.body[0].id;
+    const res = await request(app).post(`/assets/${lowRiskId}/recommendations`);
+
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty("error");
+  });
+});

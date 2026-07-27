@@ -2,6 +2,7 @@ import { Router } from "express";
 import { prisma } from "../lib/db.js";
 import { computeAssetMetrics, type AssetMetrics } from "../lib/assetMetrics.js";
 import type { RiskLevel } from "../lib/risk.js";
+import { generateRecommendation } from "../ai/recommendation.js";
 
 export const assetsRouter = Router();
 
@@ -73,4 +74,52 @@ assetsRouter.get("/:id/recommendations", async (req, res) => {
     orderBy: { createdAt: "desc" },
   });
   res.json(recommendations);
+});
+
+// POST /assets/:id/recommendations
+assetsRouter.post("/:id/recommendations", async (req, res) => {
+  const id = Number(req.params.id);
+  const asset = await prisma.asset.findUnique({
+    where: { id },
+    include: { readings: { orderBy: { recordedAt: "asc" } } },
+  });
+
+  if (!asset) {
+    res.status(404).json({ error: "Asset not found" });
+    return;
+  }
+
+  const minSafeThickness = Number(asset.minSafeThickness);
+  const metrics = computeAssetMetrics(asset.readings, minSafeThickness);
+
+  if (metrics.riskLevel !== "HIGH" && metrics.riskLevel !== "CRITICAL") {
+    res.status(400).json({ error: "Asset is not flagged (risk level must be HIGH or CRITICAL)" });
+    return;
+  }
+
+  const output = await generateRecommendation({
+    name: asset.name,
+    latestThickness: metrics.latestThickness,
+    minSafeThickness,
+    corrosionRate: metrics.corrosionRate,
+    daysRemaining: metrics.daysRemaining,
+    riskLevel: metrics.riskLevel,
+  });
+
+  if (!output) {
+    res.status(502).json({ error: "Failed to generate a valid recommendation" });
+    return;
+  }
+
+  const recommendation = await prisma.recommendation.create({
+    data: {
+      assetId: id,
+      severity: output.severity,
+      cause: output.cause,
+      recommendedAction: output.recommendedAction,
+      confidence: output.confidence,
+    },
+  });
+
+  res.status(201).json(recommendation);
 });
