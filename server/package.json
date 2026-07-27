@@ -4,6 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "postinstall": "prisma generate",
     "test": "vitest run",
     "seed": "tsx src/simulator/seed.ts",
     "analyze": "tsx src/forecasting/analyze.ts",
