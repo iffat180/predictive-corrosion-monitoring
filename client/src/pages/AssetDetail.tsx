@@ -10,26 +10,52 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { fetchAsset, fetchReadings, type AssetSummary, type Reading } from "../lib/api";
+import {
+  fetchAsset,
+  fetchReadings,
+  fetchRecommendations,
+  generateRecommendation,
+  type AssetSummary,
+  type Reading,
+  type Recommendation,
+} from "../lib/api";
 import { RiskTag } from "../components/RiskTag";
 
 export function AssetDetail() {
   const { id } = useParams();
   const [asset, setAsset] = useState<AssetSummary | null>(null);
   const [readings, setReadings] = useState<Reading[] | null>(null);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [generating, setGenerating] = useState(false);
+  const [generateError, setGenerateError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
     const assetId = Number(id);
 
-    Promise.all([fetchAsset(assetId), fetchReadings(assetId)])
-      .then(([assetData, readingsData]) => {
+    Promise.all([fetchAsset(assetId), fetchReadings(assetId), fetchRecommendations(assetId)])
+      .then(([assetData, readingsData, recommendationsData]) => {
         setAsset(assetData);
         setReadings(readingsData);
+        setRecommendations(recommendationsData);
       })
       .catch(() => setError("Could not load this asset."));
   }, [id]);
+
+  async function handleGenerate() {
+    if (!id) return;
+    setGenerating(true);
+    setGenerateError(null);
+    try {
+      const recommendation = await generateRecommendation(Number(id));
+      setRecommendations((prev) => [recommendation, ...prev]);
+    } catch (err) {
+      setGenerateError(err instanceof Error ? err.message : "Failed to generate recommendation");
+    } finally {
+      setGenerating(false);
+    }
+  }
 
   if (error) {
     return <div className="text-risk-critical">{error}</div>;
@@ -94,6 +120,48 @@ export function AssetDetail() {
           </LineChart>
         </ResponsiveContainer>
       </div>
+
+      <div className="flex items-center justify-between mt-8 mb-3">
+        <div className="uppercase tracking-wider text-[11px] text-text-dim font-semibold">
+          AI Maintenance Recommendations
+        </div>
+        {(asset.riskLevel === "HIGH" || asset.riskLevel === "CRITICAL") && (
+          <button
+            onClick={handleGenerate}
+            disabled={generating}
+            className="text-[11px] uppercase tracking-wider font-semibold bg-panel-raised border border-border-strong px-3 py-1.5 disabled:opacity-50"
+          >
+            {generating ? "Generating..." : "Generate Recommendation"}
+          </button>
+        )}
+      </div>
+
+      {generateError && <div className="text-risk-critical text-[13px] mb-3">{generateError}</div>}
+
+      {recommendations.length === 0 ? (
+        <div className="text-text-dim text-[13px]">
+          {asset.riskLevel === "HIGH" || asset.riskLevel === "CRITICAL"
+            ? "No recommendations yet for this asset."
+            : "Recommendations are only generated for HIGH or CRITICAL risk assets."}
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {recommendations.map((rec) => (
+            <div key={rec.id} className="bg-panel border border-border p-4">
+              <div className="flex items-center justify-between mb-2">
+                <RiskTag level={rec.severity} />
+                <span className="text-text-dim text-[11px] font-mono">
+                  {new Date(rec.createdAt).toLocaleString()}
+                </span>
+              </div>
+              <div className="text-text-h text-[13px] mb-2">{rec.recommendedAction}</div>
+              <div className="text-text-dim text-[11px] uppercase tracking-wider">
+                {rec.cause.replaceAll("_", " ")} &middot; {Math.round(Number(rec.confidence) * 100)}% confidence
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -21,6 +21,25 @@ export interface Reading {
   recordedAt: string;
 }
 
+export type Severity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+
+export type CauseCategory =
+  | "INTERNAL_CORROSION"
+  | "EXTERNAL_CORROSION"
+  | "MECHANICAL_DAMAGE"
+  | "MATERIAL_FAILURE"
+  | "OTHER";
+
+export interface Recommendation {
+  id: number;
+  assetId: number;
+  severity: Severity;
+  cause: CauseCategory;
+  recommendedAction: string;
+  confidence: string;
+  createdAt: string;
+}
+
 export async function fetchAssets(): Promise<AssetSummary[]> {
   const res = await fetch(`${API_BASE}/assets`);
   if (!res.ok) throw new Error("Failed to fetch assets");
@@ -36,5 +55,20 @@ export async function fetchAsset(id: number): Promise<AssetSummary> {
 export async function fetchReadings(id: number): Promise<Reading[]> {
   const res = await fetch(`${API_BASE}/assets/${id}/readings`);
   if (!res.ok) throw new Error("Failed to fetch readings");
+  return res.json();
+}
+
+export async function fetchRecommendations(id: number): Promise<Recommendation[]> {
+  const res = await fetch(`${API_BASE}/assets/${id}/recommendations`);
+  if (!res.ok) throw new Error("Failed to fetch recommendations");
+  return res.json();
+}
+
+export async function generateRecommendation(id: number): Promise<Recommendation> {
+  const res = await fetch(`${API_BASE}/assets/${id}/recommendations`, { method: "POST" });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.error ?? "Failed to generate recommendation");
+  }
   return res.json();
 }
