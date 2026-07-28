@@ -76,7 +76,7 @@ export function AssetDetail() {
 
   return (
     <div>
-      <Link to="/" className="text-[11px] text-text-dim uppercase tracking-wider">
+      <Link to="/app" className="text-[11px] text-text-dim uppercase tracking-wider">
         &larr; Back to fleet
       </Link>
 

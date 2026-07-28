@@ -21,14 +21,14 @@ export function RiskDistributionBar({ counts }: { counts: Record<RiskLevel, numb
 
   return (
     <div>
-      <div className="flex h-2 w-full overflow-hidden bg-panel-raised">
+      <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-panel-raised">
         {ORDER.map((level) => {
           const pct = total === 0 ? 0 : (counts[level] / total) * 100;
           if (pct === 0) return null;
           return (
             <div
               key={level}
-              className={SEGMENT_CLASS[level]}
+              className={`${SEGMENT_CLASS[level]} transition-[width] duration-700 ease-out`}
               style={{ width: `${pct}%` }}
               title={`${level}: ${counts[level]}`}
             />
@@ -38,7 +38,7 @@ export function RiskDistributionBar({ counts }: { counts: Record<RiskLevel, numb
       <div className="flex gap-5 mt-3">
         {ORDER.map((level) => (
           <div key={level} className="flex items-center gap-1.5 text-[11px]">
-            <span className={`w-2 h-2 inline-block ${SEGMENT_CLASS[level]}`} />
+            <span className={`w-2 h-2 rounded-full inline-block ${SEGMENT_CLASS[level]}`} />
             <span className={`font-semibold ${TEXT_CLASS[level]}`}>{level}</span>
             <span className="text-text-dim font-mono">{counts[level]}</span>
           </div>

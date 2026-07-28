@@ -62,10 +62,10 @@ export function FleetDashboard() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-xl font-semibold text-text-h">Fleet Overview</h1>
-        <div className="uppercase tracking-wider text-[11px] text-text-dim font-semibold">
-          {assets.length} assets tracked
+      <div className="mb-7 pb-5 border-b border-border">
+        <h1 className="text-2xl font-bold text-text-h tracking-tight">Fleet Overview</h1>
+        <div className="text-text-dim text-[13px] mt-1">
+          {assets.length} assets tracked &middot; live corrosion forecast, updated per reading
         </div>
       </div>
 
@@ -79,7 +79,7 @@ export function FleetDashboard() {
         />
       </div>
 
-      <div className="bg-panel border border-border p-4 mb-6">
+      <div className="bg-panel border border-border p-5 mb-6">
         <div className="uppercase tracking-wider text-[10px] text-text-dim font-semibold mb-3">
           Fleet Risk Distribution
         </div>
@@ -87,15 +87,15 @@ export function FleetDashboard() {
       </div>
 
       <div className="flex items-center justify-between mb-3">
-        <div className="flex gap-1">
+        <div className="inline-flex gap-1 bg-panel border border-border p-1">
           {RISK_FILTERS.map((level) => (
             <button
               key={level}
               onClick={() => setRiskFilter(level)}
-              className={`px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide border ${
+              className={`px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide transition-colors ${
                 riskFilter === level
-                  ? "bg-panel-raised border-border-strong text-text-h"
-                  : "border-transparent text-text-dim hover:text-text"
+                  ? "bg-panel-raised text-text-h border border-border-strong"
+                  : "text-text-dim hover:text-text border border-transparent"
               }`}
             >
               {level}
@@ -106,7 +106,7 @@ export function FleetDashboard() {
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value as SortField)}
-          className="bg-panel border border-border text-text-dim text-[11px] uppercase tracking-wide px-2 py-1.5"
+          className="bg-panel border border-border text-text-dim text-[11px] uppercase tracking-wide px-3 py-2"
         >
           <option value="daysRemaining">Sort: Urgency</option>
           <option value="corrosionRate">Sort: Corrosion Rate</option>
@@ -114,40 +114,42 @@ export function FleetDashboard() {
         </select>
       </div>
 
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="border-b border-border-strong">
-            <th className={headClass}>Asset</th>
-            <th className={headClass}>Thickness</th>
-            <th className={headClass}>Corrosion Rate</th>
-            <th className={headClass}>Days Remaining</th>
-            <th className={headClass}>Risk</th>
-          </tr>
-        </thead>
-        <tbody>
-          {visibleAssets.map((asset) => (
-            <tr key={asset.id} className="border-b border-border hover:bg-panel">
-              <td className="py-2.5 px-3 text-[13px]">
-                <Link to={`/assets/${asset.id}`} className="text-text-h no-underline">
-                  {asset.name}
-                </Link>
-              </td>
-              <td className="py-2.5 px-3 text-[13px] font-mono tabular-nums text-text">
-                {asset.latestThickness?.toFixed(2) ?? "—"} mm
-              </td>
-              <td className="py-2.5 px-3 text-[13px] font-mono tabular-nums text-text">
-                {asset.corrosionRate?.toFixed(4) ?? "—"} mm/day
-              </td>
-              <td className="py-2.5 px-3 text-[13px] font-mono tabular-nums text-text">
-                {asset.daysRemaining !== null ? Math.round(asset.daysRemaining) : "—"}
-              </td>
-              <td className="py-2.5 px-3 text-[13px]">
-                <RiskTag level={asset.riskLevel} />
-              </td>
+      <div className="bg-panel border border-border overflow-hidden">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="border-b border-border-strong bg-panel-raised">
+              <th className={headClass}>Asset</th>
+              <th className={headClass}>Thickness</th>
+              <th className={headClass}>Corrosion Rate</th>
+              <th className={headClass}>Days Remaining</th>
+              <th className={headClass}>Risk</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {visibleAssets.map((asset) => (
+              <tr key={asset.id} className="border-b border-border last:border-b-0 transition-colors hover:bg-panel-raised">
+                <td className="py-3 px-3 text-[13px]">
+                  <Link to={`/app/assets/${asset.id}`} className="text-text-h font-medium no-underline hover:text-accent transition-colors">
+                    {asset.name}
+                  </Link>
+                </td>
+                <td className="py-3 px-3 text-[13px] font-mono tabular-nums text-text">
+                  {asset.latestThickness?.toFixed(2) ?? "—"} mm
+                </td>
+                <td className="py-3 px-3 text-[13px] font-mono tabular-nums text-text">
+                  {asset.corrosionRate?.toFixed(4) ?? "—"} mm/day
+                </td>
+                <td className="py-3 px-3 text-[13px] font-mono tabular-nums text-text">
+                  {asset.daysRemaining !== null ? Math.round(asset.daysRemaining) : "—"}
+                </td>
+                <td className="py-3 px-3 text-[13px]">
+                  <RiskTag level={asset.riskLevel} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
