@@ -23,6 +23,7 @@ jobs:
       - run: npm test
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
 
   client:
     runs-on: ubuntu-latest

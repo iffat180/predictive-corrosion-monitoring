@@ -3,24 +3,36 @@ import { prisma } from "../lib/db.js";
 import { computeAssetMetrics, type AssetMetrics } from "../lib/assetMetrics.js";
 import type { RiskLevel } from "../lib/risk.js";
 import { generateRecommendation } from "../ai/recommendation.js";
+import { getOrSetCache } from "../lib/cache.js";
 
 export const assetsRouter = Router();
 
+type AssetSummary = { id: number; name: string } & AssetMetrics;
+
+const FLEET_METRICS_CACHE_KEY = "fleet:asset-metrics";
+const FLEET_METRICS_CACHE_TTL_SECONDS = 60;
+
 // GET /assets?riskLevel=HIGH&sortBy=daysRemaining
 assetsRouter.get("/", async (req, res) => {
-  const assets = await prisma.asset.findMany({
-    include: { readings: { orderBy: { recordedAt: "asc" } } },
-  });
+  const baseResults = await getOrSetCache<AssetSummary[]>(
+    FLEET_METRICS_CACHE_KEY,
+    FLEET_METRICS_CACHE_TTL_SECONDS,
+    async () => {
+      const assets = await prisma.asset.findMany({
+        include: { readings: { orderBy: { recordedAt: "asc" } } },
+      });
 
-  let results = assets.map((asset) => {
-    const metrics = computeAssetMetrics(asset.readings, Number(asset.minSafeThickness));
-    return { id: asset.id, name: asset.name, ...metrics };
-  });
+      return assets.map((asset) => {
+        const metrics = computeAssetMetrics(asset.readings, Number(asset.minSafeThickness));
+        return { id: asset.id, name: asset.name, ...metrics };
+      });
+    },
+  );
 
   const riskLevelFilter = req.query.riskLevel as RiskLevel | undefined;
-  if (riskLevelFilter) {
-    results = results.filter((a) => a.riskLevel === riskLevelFilter);
-  }
+  let results = riskLevelFilter
+    ? baseResults.filter((a) => a.riskLevel === riskLevelFilter)
+    : [...baseResults];
 
   const sortBy = req.query.sortBy as keyof AssetMetrics | undefined;
   if (sortBy) {
