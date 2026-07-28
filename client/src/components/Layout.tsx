@@ -25,6 +25,9 @@ export function Layout() {
           <NavLink to="/priority" className={navLinkClass}>
             Priority Queue
           </NavLink>
+          <NavLink to="/calibration" className={navLinkClass}>
+            PHMSA Calibration
+          </NavLink>
         </nav>
       </aside>
       <main className="flex-1 p-8 overflow-x-auto">

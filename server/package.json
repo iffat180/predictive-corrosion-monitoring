@@ -8,6 +8,7 @@
     "test": "vitest run",
     "seed": "tsx src/simulator/seed.ts",
     "analyze": "tsx src/forecasting/analyze.ts",
+    "phmsa:import": "tsx src/phmsa/import.ts",
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js"
@@ -25,7 +26,8 @@
     "supertest": "^7.2.2",
     "tsx": "^4.23.1",
     "typescript": "^7.0.2",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.10",
+    "xlsx": "^0.18.5"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",

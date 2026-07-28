@@ -59,3 +59,14 @@ model Recommendation {
   confidence        Decimal
   createdAt         DateTime      @default(now())
 }
+
+model PhmsaIncident {
+  id              Int           @id @default(autoincrement())
+  reportNumber    String
+  incidentYear    Int
+  cause           CauseCategory
+  installationYear Int?
+  material        String?
+
+  @@index([cause])
+}

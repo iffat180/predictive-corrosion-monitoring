@@ -72,3 +72,19 @@ export async function generateRecommendation(id: number): Promise<Recommendation
   }
   return res.json();
 }
+
+export type CalibrationVerdict = "TOO_AGGRESSIVE" | "REALISTIC" | "TOO_CONSERVATIVE";
+
+export interface Calibration {
+  realWorldMedianYears: number;
+  realWorldSampleSize: number;
+  simulatedMedianYears: number;
+  simulatedSampleSize: number;
+  verdict: CalibrationVerdict;
+}
+
+export async function fetchCalibration(): Promise<Calibration> {
+  const res = await fetch(`${API_BASE}/phmsa/calibration`);
+  if (!res.ok) throw new Error("Failed to fetch calibration data");
+  return res.json();
+}
